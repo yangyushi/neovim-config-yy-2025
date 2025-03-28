@@ -7,6 +7,7 @@ vim.o.secure = true
 -- Formatting
 vim.o.fileformat = 'unix'
 vim.o.background = 'dark'
+vim.o.signcolumn = 'yes'
 
 -- Indentation
 vim.o.autoindent = true

@@ -34,3 +34,12 @@ vim.keymap.set('n', '<leader>m', ':syntax sync fromstart<CR>', opts)
 vim.keymap.set('n', '<D-r>', commands.compile_and_run, opts)
 vim.keymap.set('n', '<C-r>', commands.compile_and_run, opts)
 vim.keymap.set('n', '<F5>',  commands.compile_and_run, opts)
+
+-- ensure move to next search makes cursor in the center and open folds
+vim.keymap.set('n', 'n', 'nzzzv')
+vim.keymap.set('n', 'N', 'Nzzzv')
+
+-- use SPACE + y to copy into clipboard
+vim.keymap.set('n', '<leader>y', '\"+y')
+vim.keymap.set('v', '<leader>y', '\"+y')
+vim.keymap.set('n', '<leader>Y', '\"+Y')
