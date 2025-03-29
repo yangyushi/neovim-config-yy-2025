@@ -40,12 +40,14 @@ require('mason-lspconfig').setup({
 
 
 local cmp = require('cmp')
-
 cmp.setup({
   sources = {
     {name = 'nvim_lsp'},
   },
-  mapping = cmp.mapping.preset.insert({}),
+  mapping = cmp.mapping.preset.insert({
+      ['<CR>'] = cmp.mapping.confirm({select = false}),  -- Enter key confirms completion item
+      ['<Tab>'] = cmp.mapping.complete(),  -- Ctrl + space triggers completion menu
+  }),
   snippet = {
     expand = function(args)
       vim.snippet.expand(args.body)
