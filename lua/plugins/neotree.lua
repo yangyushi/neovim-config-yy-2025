@@ -19,6 +19,7 @@ return {
       use_libuv_file_watcher = true,
     },
     window = {
+      width = 25,
       mappings = {
         ["o"] = { "toggle_node", nowait = true },
         -- necessary to remove small lag after pressing `o`
