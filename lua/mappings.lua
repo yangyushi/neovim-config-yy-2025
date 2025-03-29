@@ -36,10 +36,14 @@ vim.keymap.set('n', '<C-r>', commands.compile_and_run, opts)
 vim.keymap.set('n', '<F5>',  commands.compile_and_run, opts)
 
 -- ensure move to next search makes cursor in the center and open folds
-vim.keymap.set('n', 'n', 'nzzzv')
-vim.keymap.set('n', 'N', 'Nzzzv')
+vim.keymap.set('n', 'n', 'nzzzv', opts)
+vim.keymap.set('n', 'N', 'Nzzzv', opts)
 
 -- use SPACE + y to copy into clipboard
-vim.keymap.set('n', '<leader>y', '\"+y')
-vim.keymap.set('v', '<leader>y', '\"+y')
-vim.keymap.set('n', '<leader>Y', '\"+Y')
+vim.keymap.set('n', '<leader>y', '\"+y', opts)
+vim.keymap.set('v', '<leader>y', '\"+y', opts)
+vim.keymap.set('n', '<leader>Y', '\"+Y', opts)
+
+-- use SPACE + e/E to go to next/previous errors
+vim.keymap.set('n', '<leader>e', vim.diagnostic.goto_next, opts)
+vim.keymap.set('n', '<leader>E', vim.diagnostic.goto_prev, opts)
