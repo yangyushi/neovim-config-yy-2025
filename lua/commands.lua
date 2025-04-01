@@ -5,11 +5,11 @@ function M.compile_and_run()
     local ft = vim.bo.filetype
     if ft == 'c' then
         local exe = vim.fn.exepath('gcc')
-        vim.cmd("!echo \"Using " .. exe .. "]\" && gcc % -o %<; time ./%<")
+        vim.cmd("!echo \"Using " .. exe .. "]\" && gcc % -lz -o %<; time ./%<")
     elseif ft == 'cpp' then
         local exe = vim.fn.exepath('g++')
         vim.cmd("!echo Using [" .. exe  .. "]")
-        vim.cmd("!g++ -g -std=c++20 % -o %<")
+        vim.cmd("!g++ -g -std=c++20 % -lz -o %<")
         vim.cmd("!time ./%<")
     elseif ft == 'cuda' then
         local exe = vim.fn.exepath('nvcc')
