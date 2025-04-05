@@ -1,73 +1,65 @@
--- Add cmp_nvim_lsp capabilities settings to lspconfig
--- This should be executed before you configure any language server
-local lspconfig_defaults = require('lspconfig').util.default_config
-lspconfig_defaults.capabilities = vim.tbl_deep_extend(
-  'force',
-  lspconfig_defaults.capabilities,
-  require('cmp_nvim_lsp').default_capabilities()
-)
-
--- This is where you enable features that only work
--- if there is a language server active in the file
-vim.api.nvim_create_autocmd('LspAttach', {
-  desc = 'LSP actions',
-  callback = function(event)
-    local opts = {buffer = event.buf}
-
-    vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
-    vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', opts)
-    vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>', opts)
-    vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
-    vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
-    vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
-    vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
-    vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
-    vim.keymap.set({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-    vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
-  end,
-})
+local M = {}
 
 
-require('mason').setup({})
-require('mason-lspconfig').setup({
-    ensure_installed = { 'clangd', 'asm_lsp', 'pyright', 'lua_ls', 'rust_analyzer' },
-    handlers = {
-        function(server_name)
-        require('lspconfig')[server_name].setup({})
+local function start_lsp(config)
+    local bufnr = vim.api.nvim_get_current_buf()
+    for _, client in pairs(vim.lsp.get_clients({bufnr = bufnr})) do
+        if client.name == config.name then
+            return
+        end
+    end
+    vim.lsp.start(config)
+end
+
+
+function M.setup()
+    -- automatic start Lua LSP
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = "lua",
+        callback = function()
+            local config = {
+                name = "lua_ls",
+                cmd = { "lua-language-server" },
+                filetypes = { "lua" },
+                settings = {
+                    Lua = {
+                        diagnostics = { globals = { "vim" } },
+                        workspace = {
+                            library = vim.api.nvim_get_runtime_file("", true),
+                            checkThirdParty = false,
+                        },
+                    },
+                },
+            }
+            start_lsp(config)
         end,
-    },
-})
+    })
 
+    -- automatic start Python LSP
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = "python",
+        callback = function()
+            local config = {
+                name = "pyright",
+                cmd = { "pyright-langserver", "--stdio" },
+                filetypes = { "python" },
+            }
+            start_lsp(config)
+        end,
+    })
 
-local cmp = require('cmp')
-cmp.setup({
-  sources = {
-    {name = 'nvim_lsp'},
-  },
-  mapping = cmp.mapping.preset.insert({
-      -- Enter key confirms completion item
-      ['<CR>'] = cmp.mapping.confirm({select = false}),
+    -- automatic start C/C++ LSP
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "c", "cpp" },
+        callback = function()
+            local config = {
+                name  = "clangd",
+                cmd = { "clangd" },
+                filetypes = { "c", "cpp" },
+            }
+            start_lsp(config)
+        end,
+    })
+end
 
-      -- Use Tab to select completion options
-      ["<Tab>"] = cmp.mapping(function(fallback)
-          if cmp.visible() then
-            local entries = cmp.get_entries()
-            cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
-
-            if #entries == 1 then
-              cmp.confirm()
-            end
-          else
-            fallback()
-          end
-        end, { "i", "s" }),
-
-      -- Shift + Tab triggers completion menu
-      ['<S-Tab>'] = cmp.mapping.complete(),
-  }),
-  snippet = {
-    expand = function(args)
-      vim.snippet.expand(args.body)
-    end,
-  },
-})
+return M

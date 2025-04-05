@@ -1,4 +1,4 @@
 require('settings')
 require('mappings')
 require('config.lazy')
-require('config.lsp')
+require('config.lsp').setup()
