@@ -31,3 +31,10 @@ vim.o.ruler = true
 -- Encoding
 vim.o.encoding = 'utf-8'
 vim.o.fileencoding = 'utf-8'
+
+-- Python
+vim.g.python3_host_prog = vim.fn.expand('~/.local/bin/python3.12')
+
+
+-- LSP appearance
+vim.diagnostic.config({ virtual_text = true })
