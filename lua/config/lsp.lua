@@ -43,6 +43,7 @@ function M.setup()
                 name = "pyright",
                 cmd = { "pyright-langserver", "--stdio" },
                 filetypes = { "python" },
+                root_markers = { '.git', 'setup.py', 'pyproject.toml', 'Readme.md', 'README.md' }
             }
             start_lsp(config)
         end,
@@ -56,6 +57,7 @@ function M.setup()
                 name  = "clangd",
                 cmd = { "clangd" },
                 filetypes = { "c", "cpp" },
+                root_markers = { '.git', 'Makefile', 'CMakeLists.txt', 'Readme.md', 'README.md' }
             }
             start_lsp(config)
         end,
