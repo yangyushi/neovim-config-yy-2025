@@ -45,5 +45,19 @@ vim.keymap.set('v', '<leader>y', '\"+y', opts)
 vim.keymap.set('n', '<leader>Y', '\"+Y', opts)
 
 -- use SPACE + e/E to go to next/previous errors
-vim.keymap.set('n', '<leader>e', vim.diagnostic.goto_next, opts)
-vim.keymap.set('n', '<leader>E', vim.diagnostic.goto_prev, opts)
+vim.keymap.set(
+    'n',
+    '<leader>e',
+    function() -- update for vim.diagnostic.goto_next
+        vim.diagnostic.jump{ count = 1, float = true}
+    end,
+    opts
+)
+vim.keymap.set(
+    'n',
+    '<leader>E',
+    function() -- update for vim.diagnostic.goto_prev
+        vim.diagnostic.jump{ count = -1, float = true}
+    end,
+    opts
+)
