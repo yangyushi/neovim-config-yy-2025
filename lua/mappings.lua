@@ -61,3 +61,11 @@ vim.keymap.set(
     end,
     opts
 )
+
+-- use SPACE + d to print out diagnostic messages in a floating window
+vim.keymap.set(
+    'n',
+    '<leader>d',
+    vim.diagnostic.open_float,
+    opts
+)
