@@ -27,6 +27,7 @@ vim.o.incsearch = false
 -- Other settings
 vim.o.autochdir = true
 vim.o.ruler = true
+vim.o.wrap = false
 
 -- Encoding
 vim.o.encoding = 'utf-8'
