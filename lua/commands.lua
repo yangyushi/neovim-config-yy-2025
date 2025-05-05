@@ -13,6 +13,8 @@ function M.compile_and_run()
         vim.cmd("!echo Using [" .. exe  .. "]")
         vim.cmd("!g++ -g -std=c++20 % -lz -o %<")
         vim.cmd("!time ./%<")
+    elseif ft == 'rust' then
+        vim.cmd("!time cargo run")
     elseif ft == 'cuda' then
         local exe = vim.fn.exepath('nvcc')
         vim.cmd("!echo Using [" .. exe  .. "]")
