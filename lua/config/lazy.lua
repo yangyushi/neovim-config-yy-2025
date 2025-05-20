@@ -24,3 +24,6 @@ require("lazy").setup({
   install = { colorscheme = { "habamax" } },  -- colorscheme that will be used when installing plugins.
   checker = { enabled = true, notify = false },  -- automatically check for plugin updates
 })
+
+-- Disable Copilot by default
+vim.cmd(':Copilot disable')
