@@ -27,7 +27,7 @@ function M.compile_and_run()
     elseif ft == 'python' then
         vim.cmd("!time python %")
     elseif ft == 'dot' then
-        vim.cmd("!xdot %")
+        vim.cmd("!dot -Tsvg -O % && google-chrome %.svg")
     elseif ft == 'r' then
         vim.cmd("!Rscript %")
     end
