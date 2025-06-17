@@ -15,7 +15,11 @@ require('lspconfig').pylsp.setup{
       plugins = {
         pycodestyle = {enabled = false},
         pyflakes = {enabled = false},
-        flake8 = {enabled = true},
+        flake8 = {
+            enabled = true,
+            maxLineLength = 80,
+            maxComplexity = 20,
+        },
       }
     }
   }
