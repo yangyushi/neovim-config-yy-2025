@@ -13,7 +13,7 @@ require('lspconfig').pylsp.setup{
   settings = {
     pylsp = {
       plugins = {
-        pycodestyle = {enabled = true},
+        pycodestyle = {enabled = false},
         pyflakes = {enabled = false},
         flake8 = {enabled = true},
       }
