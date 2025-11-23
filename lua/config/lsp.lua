@@ -1,6 +1,9 @@
-require('lspconfig').clangd.setup{};
-require('lspconfig').lua_ls.setup{};
-require('lspconfig').rust_analyzer.setup{
+local lspconfig = require('lspconfig')
+
+
+lspconfig.clangd.setup{};
+lspconfig.lua_ls.setup{};
+lspconfig.rust_analyzer.setup{
   settings = {
     ['rust-analyzer'] = {
       diagnostics = {
@@ -9,7 +12,7 @@ require('lspconfig').rust_analyzer.setup{
     }
   }
 };
-require('lspconfig').pylsp.setup{
+lspconfig.pylsp.setup{
   settings = {
     pylsp = {
       plugins = {
@@ -24,3 +27,4 @@ require('lspconfig').pylsp.setup{
     }
   }
 };
+
