@@ -33,8 +33,11 @@ vim.o.wrap = false
 vim.o.encoding = 'utf-8'
 vim.o.fileencoding = 'utf-8'
 
--- Python
-vim.g.python3_host_prog = vim.fn.expand('~/.local/bin/python3.12')
-
 -- LSP appearance
 vim.diagnostic.config({ virtual_text = true })
+
+-- New style for SHIFT-K pop up
+vim.o.winborder = 'rounded'
+
+-- Auto Completion
+vim.opt.completeopt = { "menu", "menuone", "noinsert", "noselect", "popup" }
