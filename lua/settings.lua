@@ -24,9 +24,12 @@ vim.o.hlsearch = true
 vim.o.showmatch = true
 vim.o.incsearch = false
 
+-- Clipboard
+vim.g.clipboard = 'osc52'
+
 -- Other settings
 vim.o.autochdir = true
-vim.o.ruler = true
+vim.o.ruler = false
 vim.o.wrap = false
 
 -- Encoding
