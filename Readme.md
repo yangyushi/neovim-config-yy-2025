@@ -2,7 +2,12 @@
 
 It's 2025 now and I finally decided to try something other than Vim.
 
-## How to use it
+## How to "install" it
+
+```sh
+mkdir -p $HOME/.config
+git clone https://github.com/yangyushi/neovim-config-yy-2025.git $HOME/.config/nvim
+```
 
 - Clone the repository and move (or soft link) it to `$HOME/.config/nvim`.
 - Use command `:Lazy` to inspect plugin status
