@@ -25,6 +25,8 @@ function M.compile_and_run()
     elseif ft == 'sh' then
         vim.cmd("!time bash %")
     elseif ft == 'python' then
+        local exe = vim.fn.exepath('python')
+        vim.cmd("!echo Using [" .. exe  .. "]")
         vim.cmd("!time python %")
     elseif ft == 'dot' then
         vim.cmd("!dot -Tsvg -O % && google-chrome %.svg")
