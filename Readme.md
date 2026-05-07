@@ -37,24 +37,24 @@ install it with the one-liner for your OS:
 
 **macOS (Homebrew)**
 ```sh
-brew install --cask font-jetbrains-mono-nerd-font
+brew install --cask font-fira-code-nerd-font
 ```
 
 **Linux (official install script)**
 ```sh
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEAD/install.sh)" -- JetBrainsMono
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEAD/install.sh)" -- FiraCode
 ```
 
 **Windows (winget)**
 ```powershell
-winget install --id DEVCOM.JetBrainsMonoNerdFont
+winget install --id DEVCOM.FiraCodeNerdFont
 ```
 
 **Windows (Scoop)**
 ```powershell
-scoop bucket add nerd-fonts; scoop install JetBrainsMono-NF
+scoop bucket add nerd-fonts; scoop install FiraCode-NF
 ```
 
-Replace `JetBrainsMono` / `JetBrainsMono-NF` with the name of whichever font
+Replace `FiraCode` / `FiraCode-NF` with the name of whichever font
 you prefer. After installation, set that font as the font in your terminal
 emulator and restart Neovim.
