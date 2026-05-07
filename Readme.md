@@ -18,13 +18,14 @@ The configuration works out of the box. The optional tools below unlock addition
 
 | Tool | What it enables | Official site |
 |---|---|---|
-| [ripgrep](https://github.com/BurntSushi/ripgrep) | fast file/text search in Telescope | https://github.com/BurntSushi/ripgrep |
-| [luarocks](https://luarocks.org/) | plugin rock support (lazy.nvim) | https://luarocks.org |
-| [clangd](https://clangd.llvm.org/) | LSP for C/C++ | https://clangd.llvm.org |
-| [pylsp](https://github.com/python-lsp/python-lsp-server) | LSP for Python | https://github.com/python-lsp/python-lsp-server |
-| [lua-language-server](https://github.com/LuaLS/lua-language-server) | LSP for Lua | https://github.com/LuaLS/lua-language-server |
-| [pynvim](https://github.com/neovim/pynvim) | Python provider for Neovim | https://github.com/neovim/pynvim |
-| [neovim (npm)](https://www.npmjs.com/package/neovim) | Node.js provider for Neovim | https://www.npmjs.com/package/neovim |
+| [ripgrep](https://github.com/BurntSushi/ripgrep) | powers `:Telescope live_grep` and `:Telescope grep_string` (full-text search across files) | https://github.com/BurntSushi/ripgrep |
+| [luarocks](https://luarocks.org/) | lets lazy.nvim install plugins distributed as Lua rocks; some plugins require it at startup | https://luarocks.org |
+| [clangd](https://clangd.llvm.org/) | LSP for `.c` / `.cpp` — diagnostics, completion, go-to-definition, hover docs | https://clangd.llvm.org |
+| [pylsp](https://github.com/python-lsp/python-lsp-server) | LSP for `.py` — flake8 diagnostics, completion, go-to-definition, hover docs | https://github.com/python-lsp/python-lsp-server |
+| [lua-language-server](https://github.com/LuaLS/lua-language-server) | LSP for `.lua` — diagnostics, completion, go-to-definition, hover docs (including for this config itself) | https://github.com/LuaLS/lua-language-server |
+| [rust-analyzer](https://rust-analyzer.github.io/) | LSP for `.rs` — diagnostics, completion, go-to-definition, hover docs | https://rust-analyzer.github.io |
+| [pynvim](https://github.com/neovim/pynvim) | Python remote-plugin provider — required by plugins that call into Python | https://github.com/neovim/pynvim |
+| [neovim (npm)](https://www.npmjs.com/package/neovim) | Node.js remote-plugin provider — required by plugins that call into Node.js | https://www.npmjs.com/package/neovim |
 
 ### Installing via package managers
 
