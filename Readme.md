@@ -26,6 +26,7 @@ The configuration works out of the box. The optional tools below unlock addition
 | [rust-analyzer](https://rust-analyzer.github.io/) | LSP for `.rs` — diagnostics, completion, go-to-definition, hover docs | https://rust-analyzer.github.io |
 | [pynvim](https://github.com/neovim/pynvim) | Python remote-plugin provider — required by plugins that call into Python | https://github.com/neovim/pynvim |
 | [neovim (npm)](https://www.npmjs.com/package/neovim) | Node.js remote-plugin provider — required by plugins that call into Node.js | https://www.npmjs.com/package/neovim |
+| [Nerd Font](https://www.nerdfonts.com/font-downloads) | required by file-tree and status-line plugins to display icons correctly; without it you see placeholder boxes instead of icons | https://www.nerdfonts.com |
 
 ### Installing via package managers
 
@@ -34,6 +35,7 @@ The configuration works out of the box. The optional tools below unlock addition
 ```sh
 sudo apt install ripgrep luarocks clangd lua-language-server python3-pylsp python3-pynvim
 npm install -g neovim
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEAD/install.sh)" -- FiraCode
 ```
 
 > **Note:** `lua-language-server` may not be available in older releases.
@@ -45,6 +47,7 @@ npm install -g neovim
 ```sh
 sudo pacman -S ripgrep luarocks clang lua-language-server python-lsp-server python-pynvim
 npm install -g neovim
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEAD/install.sh)" -- FiraCode
 ```
 
 (`clang` ships `clangd`; `python-lsp-server` provides the `pylsp` executable.)
@@ -54,6 +57,7 @@ npm install -g neovim
 ```sh
 sudo dnf install ripgrep luarocks clang-tools-extra lua-language-server python3-pylsp python3-pynvim
 npm install -g neovim
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEAD/install.sh)" -- FiraCode
 ```
 
 > **Note:** `lua-language-server` may require enabling a COPR repository on older releases.
@@ -65,6 +69,7 @@ npm install -g neovim
 brew install ripgrep luarocks llvm lua-language-server
 pip3 install python-lsp-server pynvim
 npm install -g neovim
+brew install --cask font-fira-code-nerd-font
 ```
 
 Add LLVM's `bin` directory to `$PATH` so that `clangd` is found:
@@ -80,6 +85,7 @@ source ~/.zshrc
 scoop install ripgrep luarocks llvm lua-language-server
 pip install python-lsp-server pynvim
 npm install -g neovim
+scoop bucket add nerd-fonts; scoop install FiraCode-NF
 ```
 
 `clangd` is bundled with `llvm`. If you use [Chocolatey](https://chocolatey.org/) instead:
@@ -88,42 +94,9 @@ npm install -g neovim
 choco install ripgrep llvm lua-language-server
 pip install python-lsp-server pynvim
 npm install -g neovim
+winget install --id DEVCOM.FiraCodeNerdFont
 ```
 
 > **Note:** `luarocks` for Windows can be downloaded from the
 > [luarocks.org](https://luarocks.org/releases/) releases page if it is not
 > available through your package manager.
-
-## Fixing Broken Icons (Nerd Fonts)
-
-Several plugins (file tree, status line, etc.) display icons that require a
-[Nerd Font](https://www.nerdfonts.com/font-downloads) to be installed and
-selected in your terminal emulator. Without one, you will see placeholder
-boxes or question marks instead of icons.
-
-Pick any font you like from **https://www.nerdfonts.com/font-downloads**, then
-install it with the one-liner for your OS:
-
-**macOS (Homebrew)**
-```sh
-brew install --cask font-fira-code-nerd-font
-```
-
-**Linux (official install script)**
-```sh
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEAD/install.sh)" -- FiraCode
-```
-
-**Windows (winget)**
-```powershell
-winget install --id DEVCOM.FiraCodeNerdFont
-```
-
-**Windows (Scoop)**
-```powershell
-scoop bucket add nerd-fonts; scoop install FiraCode-NF
-```
-
-Replace `FiraCode` / `FiraCode-NF` with the name of whichever font
-you prefer. After installation, set that font as the font in your terminal
-emulator and restart Neovim.
