@@ -16,17 +16,17 @@ git clone https://github.com/yangyushi/neovim-config-yy-2025.git $HOME/.config/n
 
 The configuration works out of the box. The optional tools below unlock additional features — install only what you need.
 
-| Tool | What it enables | Official site |
-|---|---|---|
-| [ripgrep](https://github.com/BurntSushi/ripgrep) | powers `:Telescope live_grep` and `:Telescope grep_string` (full-text search across files) | https://github.com/BurntSushi/ripgrep |
-| [luarocks](https://luarocks.org/) | lets lazy.nvim install plugins distributed as Lua rocks; some plugins require it at startup | https://luarocks.org |
-| [clangd](https://clangd.llvm.org/) | LSP for `.c` / `.cpp` — diagnostics, completion, go-to-definition, hover docs | https://clangd.llvm.org |
-| [pylsp](https://github.com/python-lsp/python-lsp-server) | LSP for `.py` — flake8 diagnostics, completion, go-to-definition, hover docs | https://github.com/python-lsp/python-lsp-server |
-| [lua-language-server](https://github.com/LuaLS/lua-language-server) | LSP for `.lua` — diagnostics, completion, go-to-definition, hover docs (including for this config itself) | https://github.com/LuaLS/lua-language-server |
-| [rust-analyzer](https://rust-analyzer.github.io/) | LSP for `.rs` — diagnostics, completion, go-to-definition, hover docs | https://rust-analyzer.github.io |
-| [pynvim](https://github.com/neovim/pynvim) | Python remote-plugin provider — required by plugins that call into Python | https://github.com/neovim/pynvim |
-| [neovim (npm)](https://www.npmjs.com/package/neovim) | Node.js remote-plugin provider — required by plugins that call into Node.js | https://www.npmjs.com/package/neovim |
-| [Nerd Font](https://www.nerdfonts.com/font-downloads) | required by file-tree and status-line plugins to display icons correctly; without it you see placeholder boxes instead of icons | https://www.nerdfonts.com |
+| Tool | What it enables |
+|---|---|
+| [ripgrep](https://github.com/BurntSushi/ripgrep) | powers `:Telescope live_grep` and `:Telescope grep_string` (full-text search across files) |
+| [luarocks](https://luarocks.org/) | lets lazy.nvim install plugins distributed as Lua rocks; some plugins require it at startup |
+| [clangd](https://clangd.llvm.org/) | LSP for `.c` / `.cpp` — diagnostics, completion, go-to-definition, hover docs |
+| [pylsp](https://github.com/python-lsp/python-lsp-server) | LSP for `.py` — flake8 diagnostics, completion, go-to-definition, hover docs |
+| [lua-language-server](https://github.com/LuaLS/lua-language-server) | LSP for `.lua` — diagnostics, completion, go-to-definition, hover docs (including for this config itself) |
+| [rust-analyzer](https://rust-analyzer.github.io/) | LSP for `.rs` — diagnostics, completion, go-to-definition, hover docs |
+| [pynvim](https://github.com/neovim/pynvim) | Python remote-plugin provider — required by plugins that call into Python |
+| [neovim (npm)](https://www.npmjs.com/package/neovim) | Node.js remote-plugin provider — required by plugins that call into Node.js |
+| [Nerd Font](https://www.nerdfonts.com/font-downloads) | required by file-tree and status-line plugins to display icons correctly; without it you see placeholder boxes instead of icons |
 
 ### Installing via package managers
 
