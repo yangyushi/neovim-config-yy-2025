@@ -36,7 +36,17 @@ vim.lsp.config.pylsp = {
   },
 }
 
-vim.lsp.enable({ "clangd", "lua_ls", "rust_analyzer", "pylsp" })
+vim.lsp.config("roslyn_ls", {
+  cmd = {
+    "roslyn-language-server",
+    "--stdio",
+  },
+  filetypes = { "cs" },
+  root_markers = { "*.sln", "*.slnx", "*.csproj", ".git" },
+})
+
+
+vim.lsp.enable({ "clangd", "lua_ls", "rust_analyzer", "pylsp", "roslyn_ls"})
 
 vim.api.nvim_create_autocmd('LspAttach', {
   callback = function(ev)

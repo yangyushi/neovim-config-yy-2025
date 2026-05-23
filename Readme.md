@@ -24,6 +24,7 @@ The configuration works out of the box. The optional tools below unlock addition
 | [pylsp](https://github.com/python-lsp/python-lsp-server) | LSP for Python |
 | [lua-language-server](https://github.com/LuaLS/lua-language-server) | LSP for Lua |
 | [rust-analyzer](https://rust-analyzer.github.io/) | LSP for Rust |
+| [roslyn-language-server](https://github.com/dotnet/roslyn) | LSP for C# |
 | [pynvim](https://github.com/neovim/pynvim) | Python plugin provider |
 | [neovim (npm)](https://www.npmjs.com/package/neovim) | Node.js plugin provider |
 | [Nerd Font](https://www.nerdfonts.com/font-downloads) | icons in file-tree and status-line |
@@ -35,6 +36,7 @@ The configuration works out of the box. The optional tools below unlock addition
 ```sh
 sudo apt install ripgrep luarocks clangd lua-language-server python3-pylsp python3-pynvim
 npm install -g neovim
+dotnet tool install --global roslyn-language-server
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEAD/install.sh)" -- FiraCode
 ```
 
@@ -45,8 +47,9 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEA
 #### Arch Linux
 
 ```sh
-sudo pacman -S ripgrep luarocks clang lua-language-server python-lsp-server python-pynvim
+sudo pacman -S ripgrep luarocks clang lua-language-server python-lsp-server python-pynvim dotnet-sdk
 npm install -g neovim
+dotnet tool install --global roslyn-language-server
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEAD/install.sh)" -- FiraCode
 ```
 
@@ -55,8 +58,9 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEA
 #### Fedora
 
 ```sh
-sudo dnf install ripgrep luarocks clang-tools-extra lua-language-server python3-pylsp python3-pynvim
+sudo dnf install ripgrep luarocks clang-tools-extra lua-language-server python3-pylsp python3-pynvim dotnet-sdk-9.0
 npm install -g neovim
+dotnet tool install --global roslyn-language-server
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEAD/install.sh)" -- FiraCode
 ```
 
@@ -66,9 +70,10 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEA
 #### macOS (Homebrew)
 
 ```sh
-brew install ripgrep luarocks llvm lua-language-server
+brew install ripgrep luarocks llvm lua-language-server dotnet
 pip3 install python-lsp-server pynvim
 npm install -g neovim
+dotnet tool install --global roslyn-language-server
 brew install --cask font-fira-code-nerd-font
 ```
 
@@ -82,18 +87,20 @@ source ~/.zshrc
 #### Windows (Scoop)
 
 ```powershell
-scoop install ripgrep luarocks llvm lua-language-server
+scoop install ripgrep luarocks llvm lua-language-server dotnet-sdk
 pip install python-lsp-server pynvim
 npm install -g neovim
+dotnet tool install --global roslyn-language-server
 scoop bucket add nerd-fonts; scoop install FiraCode-NF
 ```
 
 `clangd` is bundled with `llvm`. If you use [Chocolatey](https://chocolatey.org/) instead:
 
 ```powershell
-choco install ripgrep llvm lua-language-server
+choco install ripgrep llvm lua-language-server dotnet-sdk
 pip install python-lsp-server pynvim
 npm install -g neovim
+dotnet tool install --global roslyn-language-server
 winget install --id DEVCOM.FiraCodeNerdFont
 ```
 

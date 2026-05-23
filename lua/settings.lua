@@ -30,6 +30,7 @@ vim.g.clipboard = 'osc52'
 -- Other settings
 vim.o.autochdir = true
 vim.o.ruler = false
+vim.o.colorcolumn = ""
 vim.o.wrap = false
 
 -- Encoding
@@ -44,3 +45,6 @@ vim.o.winborder = 'rounded'
 
 -- Auto Completion
 vim.opt.completeopt = { "menu", "menuone", "noinsert", "noselect", "popup" }
+
+-- Setting Colourscheme
+vim.cmd.colorscheme("habamax")
