@@ -48,3 +48,6 @@ vim.opt.completeopt = { "menu", "menuone", "noinsert", "noselect", "popup" }
 
 -- Setting Colourscheme
 vim.cmd.colorscheme("habamax")
+
+-- Conserve terminal transparency
+vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })
