@@ -42,7 +42,7 @@ The configuration works out of the box. The optional tools below unlock addition
 ```sh
 sudo apt install ripgrep luarocks clangd lua-language-server python3-pylsp python3-pynvim
 npm install -g neovim
-dotnet tool install --global roslyn-language-server
+dotnet tool install --global csharp-ls
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEAD/install.sh)" -- FiraCode
 ```
 
@@ -55,7 +55,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEA
 ```sh
 sudo pacman -S ripgrep luarocks clang lua-language-server python-lsp-server python-pynvim dotnet-sdk
 npm install -g neovim
-dotnet tool install --global roslyn-language-server
+dotnet tool install --global csharp-ls
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEAD/install.sh)" -- FiraCode
 ```
 
@@ -66,7 +66,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEA
 ```sh
 sudo dnf install ripgrep luarocks clang-tools-extra lua-language-server python3-pylsp python3-pynvim dotnet-sdk-9.0
 npm install -g neovim
-dotnet tool install --global roslyn-language-server
+dotnet tool install --global csharp-ls
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEAD/install.sh)" -- FiraCode
 ```
 
@@ -79,7 +79,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/ryanoasis/nerd-fonts/HEA
 brew install ripgrep luarocks llvm lua-language-server dotnet
 pip3 install python-lsp-server pynvim
 npm install -g neovim
-dotnet tool install --global roslyn-language-server
+dotnet tool install --global csharp-ls
 brew install --cask font-fira-code-nerd-font
 ```
 
@@ -96,7 +96,7 @@ source ~/.zshrc
 scoop install ripgrep luarocks llvm lua-language-server dotnet-sdk
 pip install python-lsp-server pynvim
 npm install -g neovim
-dotnet tool install --global roslyn-language-server
+dotnet tool install --global csharp-ls
 scoop bucket add nerd-fonts; scoop install FiraCode-NF
 ```
 
@@ -106,7 +106,7 @@ scoop bucket add nerd-fonts; scoop install FiraCode-NF
 choco install ripgrep llvm lua-language-server dotnet-sdk
 pip install python-lsp-server pynvim
 npm install -g neovim
-dotnet tool install --global roslyn-language-server
+dotnet tool install --global csharp-ls
 winget install --id DEVCOM.FiraCodeNerdFont
 ```
 
