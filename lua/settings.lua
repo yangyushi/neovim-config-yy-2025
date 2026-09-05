@@ -25,7 +25,11 @@ vim.o.showmatch = true
 vim.o.incsearch = false
 
 -- Clipboard
-vim.g.clipboard = 'osc52'
+vim.opt.clipboard = 'unnamedplus'
+if not vim.g.neovide and (vim.env.SSH_TTY or vim.env.SSH_CONNECTION)
+then
+    vim.g.clipboard = 'osc52'  -- use OSC52 when running remotely in a terminal.
+end
 
 -- Other settings
 vim.o.autochdir = true
@@ -51,3 +55,9 @@ vim.cmd.colorscheme("habamax")
 
 -- Conserve terminal transparency
 vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })
+
+-- Make neovide (windoes app) transparent
+if vim.g.neovide then
+    vim.g.neovide_opacity = 0.7
+    vim.g.neovide_cursor_animation_length = 0.05
+end
