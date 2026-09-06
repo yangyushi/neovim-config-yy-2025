@@ -69,3 +69,11 @@ vim.keymap.set(
     vim.diagnostic.open_float,
     opts
 )
+
+-- use SPACE + a to toggle aerial
+vim.keymap.set(
+    "n",
+    "<leader>a",
+    "<cmd>AerialToggle!<CR>",
+    opts
+)
