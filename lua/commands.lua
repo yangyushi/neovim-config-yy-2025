@@ -1,28 +1,59 @@
 local M = {}
 
+local is_windows = vim.fn.has('win32') == 1
+
 M.config = {
     terminal_height = 12,
-    cpp_standard = 'c++20',
+
+    c_flags = {
+        '-g',
+    },
+
+    cpp_flags = {
+        '-g',
+        '-std=c++20',
+    },
+
+    cuda_flags = {},
+
+    -- Add '-lz' here if a project actually needs zlib.
+    c_link_flags = {},
+    cpp_link_flags = {},
+    cuda_link_flags = {},
 }
 
-local function q(value)
-    return vim.fn.shellescape(tostring(value))
+-------------------------------------------------------------------------------
+-- Utilities
+-------------------------------------------------------------------------------
+
+---@param parts string[][]
+---@return string[]
+local function join_argv(parts)
+    local result = {}
+
+    for _, part in ipairs(parts) do
+        vim.list_extend(result, part)
+    end
+
+    return result
 end
 
----Convert argv into a shell-safe command string.
 ---@param argv string[]
 ---@return string
-local function shell_command(argv)
+local function display_command(argv)
     local result = {}
 
     for i, arg in ipairs(argv) do
-        result[i] = q(arg)
+        if arg:find('%s') then
+            result[i] = string.format('%q', arg)
+        else
+            result[i] = arg
+        end
     end
 
     return table.concat(result, ' ')
 end
 
----Find an executable from a list of candidates.
 ---@param candidates string|string[]
 ---@return string?
 local function find_executable(candidates)
@@ -31,48 +62,95 @@ local function find_executable(candidates)
     end
 
     for _, candidate in ipairs(candidates) do
-        local path = vim.fn.exepath(candidate)
+        local exe = vim.fn.exepath(candidate)
 
-        if path ~= '' then
-            return path
+        if exe ~= '' then
+            return exe
         end
     end
 
     vim.notify(
         'Executable not found: ' .. table.concat(candidates, ', '),
-        vim.log.levels.ERROR
+        vim.log.levels.ERROR,
+        { title = 'Runner' }
     )
 
     return nil
 end
 
----Shell command that prints another command before running it.
----@param command string
----@return string
-local function trace(command)
-    return "printf '%s\\n' " .. q('$ ' .. command)
+-------------------------------------------------------------------------------
+-- Output window
+-------------------------------------------------------------------------------
+
+---@param title string
+---@param argv string[]
+---@param stdout string?
+---@param stderr string?
+local function show_process_error(title, argv, stdout, stderr)
+    vim.cmd(
+        ('botright %dnew'):format(M.config.terminal_height)
+    )
+
+    local buf = vim.api.nvim_get_current_buf()
+
+    vim.bo[buf].buftype = 'nofile'
+    vim.bo[buf].bufhidden = 'wipe'
+    vim.bo[buf].swapfile = false
+    vim.bo[buf].filetype = 'log'
+
+    local lines = {
+        title,
+        '',
+        '$ ' .. display_command(argv),
+        '',
+    }
+
+    local function append_output(text)
+        if not text or text == '' then
+            return
+        end
+
+        vim.list_extend(
+            lines,
+            vim.split(text, '\n', {
+                plain = true,
+                trimempty = true,
+            })
+        )
+    end
+
+    append_output(stdout)
+    append_output(stderr)
+
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+
+    vim.bo[buf].modifiable = false
 end
 
----Run shell statements in a terminal buffer.
+-------------------------------------------------------------------------------
+-- Terminal execution
+-------------------------------------------------------------------------------
+
+---Run argv directly in a terminal.
 ---
----jobstart(..., { term = true }) is the replacement for deprecated termopen().
----@param lines string[]
+---No shell is involved, so paths and arguments work correctly on
+---Windows, Linux, and macOS.
+---
+---@param argv string[]
 ---@param cwd string?
 ---@param on_exit fun(code: integer)|nil
 ---@return integer?
-local function run_in_terminal(lines, cwd, on_exit)
-    local script = table.concat(lines, '\n')
-
-    -- Create an unmodified buffer, required by jobstart({ term = true }).
-    vim.cmd(('botright %dnew'):format(M.config.terminal_height))
+local function run_in_terminal(argv, cwd, on_exit)
+    vim.cmd(
+        ('botright %dnew'):format(M.config.terminal_height)
+    )
 
     local buf = vim.api.nvim_get_current_buf()
 
     vim.bo[buf].bufhidden = 'wipe'
+    vim.bo[buf].swapfile = false
 
-    -- Passing a string intentionally invokes 'shell'/'shellcmdflag'.
-    -- This lets us use shell features such as && and time.
-    local job = vim.fn.jobstart(script, {
+    local job = vim.fn.jobstart(argv, {
         term = true,
         cwd = cwd,
 
@@ -86,13 +164,18 @@ local function run_in_terminal(lines, cwd, on_exit)
     })
 
     if job <= 0 then
-        if vim.api.nvim_buf_is_valid(buf) then
-            vim.api.nvim_buf_delete(buf, { force = true })
-        end
+        pcall(
+            vim.api.nvim_buf_delete,
+            buf,
+            { force = true }
+        )
 
         vim.notify(
-            ('Failed to start terminal job: %d'):format(job),
-            vim.log.levels.ERROR
+            ('Unable to start process: %s'):format(
+                display_command(argv)
+            ),
+            vim.log.levels.ERROR,
+            { title = 'Runner' }
         )
 
         return nil
@@ -103,200 +186,371 @@ local function run_in_terminal(lines, cwd, on_exit)
     return job
 end
 
----Build a script for a compile -> run workflow.
+-------------------------------------------------------------------------------
+-- Non-interactive subprocess
+-------------------------------------------------------------------------------
+
+---@param argv string[]
+---@param cwd string?
+---@param on_success fun(result: vim.SystemCompleted)
+local function run_system(argv, cwd, on_success)
+    local ok, err = pcall(function()
+        vim.system(
+            argv,
+            {
+                cwd = cwd,
+                text = true,
+            },
+            function(result)
+                vim.schedule(function()
+                    if result.code ~= 0 then
+                        show_process_error(
+                            ('Process failed (exit %d)'):format(
+                                result.code
+                            ),
+                            argv,
+                            result.stdout,
+                            result.stderr
+                        )
+
+                        return
+                    end
+
+                    on_success(result)
+                end)
+            end
+        )
+    end)
+
+    if not ok then
+        vim.notify(
+            tostring(err),
+            vim.log.levels.ERROR,
+            { title = 'Runner' }
+        )
+    end
+end
+
+-------------------------------------------------------------------------------
+-- Compile + run
+-------------------------------------------------------------------------------
+
 ---@param build_argv string[]
 ---@param run_argv string[]
----@param exe string?
----@return string[]
-local function compile_then_run(build_argv, run_argv, exe)
-    local build = shell_command(build_argv)
-    local run = shell_command(run_argv)
-
-    local lines = {}
-
-    if exe then
-        lines[#lines + 1] =
-            "printf '%s\\n' " .. q(('Using [%s]'):format(exe))
-    end
-
-    lines[#lines + 1] = trace(build)
-
-    -- The executable is only run if compilation succeeds.
-    lines[#lines + 1] = table.concat({
-        build,
-        trace(run),
-        'echo',
-        'time ' .. run,
-    }, ' && ')
-
-    return lines
+---@param cwd string
+local function build_and_run(build_argv, run_argv, cwd)
+    run_system(build_argv, cwd, function()
+        run_in_terminal(run_argv, cwd)
+    end)
 end
 
----Build a script for an interpreted/single-command workflow.
----@param argv string[]
----@param exe string?
----@param timed boolean?
----@return string[]
-local function run_command(argv, exe, timed)
-    local command = shell_command(argv)
-    local lines = {}
+-------------------------------------------------------------------------------
+-- Java helpers
+-------------------------------------------------------------------------------
 
-    if exe then
-        lines[#lines + 1] =
-            "printf '%s\\n' " .. q(('Using [%s]'):format(exe))
+---@param src_dir string
+---@param src_stem string
+---@return string class_name
+---@return string classpath
+local function java_class_info(src_dir, src_stem)
+    local package
+
+    local line_count = math.min(
+        vim.api.nvim_buf_line_count(0),
+        100
+    )
+
+    local lines = vim.api.nvim_buf_get_lines(
+        0,
+        0,
+        line_count,
+        false
+    )
+
+    for _, line in ipairs(lines) do
+        package = line:match(
+            '^%s*package%s+([%w_%.]+)%s*;'
+        )
+
+        if package then
+            break
+        end
     end
 
-    lines[#lines + 1] = trace(command)
-    lines[#lines + 1] = 'echo'
-
-    if timed then
-        lines[#lines + 1] = 'time ' .. command
-    else
-        lines[#lines + 1] = command
+    if not package then
+        return src_stem, src_dir
     end
 
-    return lines
+    local classpath = src_dir
+
+    for _ in package:gmatch('[^.]+') do
+        local parent = vim.fs.dirname(classpath)
+
+        if not parent then
+            break
+        end
+
+        classpath = parent
+    end
+
+    return package .. '.' .. src_stem, classpath
 end
+
+-------------------------------------------------------------------------------
+-- Main runner
+-------------------------------------------------------------------------------
 
 function M.compile_and_run()
-    local src = vim.api.nvim_buf_get_name(0)
+    local buf = vim.api.nvim_get_current_buf()
+    local src = vim.api.nvim_buf_get_name(buf)
 
     if src == '' then
         vim.notify(
             'Current buffer is not associated with a file',
-            vim.log.levels.WARN
+            vim.log.levels.WARN,
+            { title = 'Runner' }
         )
+
         return
     end
 
-    -- Only write if the buffer was actually modified.
-    vim.cmd('update')
+    ---------------------------------------------------------------------------
+    -- Save first
+    ---------------------------------------------------------------------------
 
-    local ft = vim.bo.filetype
+    local saved, save_err = pcall(
+        vim.cmd,
+        'update'
+    )
 
-    local src_name = vim.fs.basename(src)
+    if not saved then
+        vim.notify(
+            tostring(save_err),
+            vim.log.levels.ERROR,
+            { title = 'Runner' }
+        )
+
+        return
+    end
+
+    ---------------------------------------------------------------------------
+    -- File information
+    ---------------------------------------------------------------------------
+
+    src = vim.fs.normalize(src)
+
+    local ft = vim.bo[buf].filetype
     local src_dir = vim.fs.dirname(src)
+    local src_name = vim.fs.basename(src)
     local src_stem = vim.fn.fnamemodify(src_name, ':r')
 
-    -------------------------------------------------------------------------
+    if not src_dir then
+        vim.notify(
+            'Unable to determine source directory',
+            vim.log.levels.ERROR,
+            { title = 'Runner' }
+        )
+
+        return
+    end
+
+    ---------------------------------------------------------------------------
     -- C
-    -------------------------------------------------------------------------
+    ---------------------------------------------------------------------------
 
     if ft == 'c' then
-        local exe = find_executable({ 'gcc', 'clang', 'cc' })
-        if not exe then
+        local cc = find_executable({
+            'gcc',
+            'clang',
+            'cc',
+        })
+
+        if not cc then
             return
         end
 
-        run_in_terminal(
-            compile_then_run(
-                {
-                    exe,
-                    '-g',
-                    src_name,
-                    '-lz',
-                    '-o',
-                    src_stem,
-                },
-                {
-                    './' .. src_stem,
-                },
-                exe
-            ),
+        local output = vim.fs.joinpath(
+            src_dir,
+            src_stem .. (is_windows and '.exe' or '')
+        )
+
+        local build_argv = join_argv({
+            { cc },
+            M.config.c_flags,
+            {
+                src,
+                '-o',
+                output,
+            },
+            M.config.c_link_flags,
+        })
+
+        build_and_run(
+            build_argv,
+            { output },
             src_dir
         )
 
-    -------------------------------------------------------------------------
+        return
+    end
+
+    ---------------------------------------------------------------------------
     -- C++
-    -------------------------------------------------------------------------
+    ---------------------------------------------------------------------------
 
-    elseif ft == 'cpp' then
-        local exe = find_executable({ 'g++', 'clang++', 'c++' })
-        if not exe then
+    if ft == 'cpp' then
+        local cxx = find_executable({
+            'g++',
+            'clang++',
+            'c++',
+        })
+
+        if not cxx then
+            return
+        end
+
+        local output = vim.fs.joinpath(
+            src_dir,
+            src_stem .. (is_windows and '.exe' or '')
+        )
+
+        local build_argv = join_argv({
+            { cxx },
+            M.config.cpp_flags,
+            {
+                src,
+                '-o',
+                output,
+            },
+            M.config.cpp_link_flags,
+        })
+
+        build_and_run(
+            build_argv,
+            { output },
+            src_dir
+        )
+
+        return
+    end
+
+    ---------------------------------------------------------------------------
+    -- Python
+    ---------------------------------------------------------------------------
+
+    if ft == 'python' then
+        local candidates
+
+        if is_windows then
+            candidates = {
+                'python',
+                'python3',
+                'py',
+            }
+        else
+            candidates = {
+                'python3',
+                'python',
+            }
+        end
+
+        local python = find_executable(candidates)
+
+        if not python then
             return
         end
 
         run_in_terminal(
-            compile_then_run(
-                {
-                    exe,
-                    '-g',
-                    '-std=' .. M.config.cpp_standard,
-                    src_name,
-                    '-lz',
-                    '-o',
-                    src_stem,
-                },
-                {
-                    './' .. src_stem,
-                },
-                exe
-            ),
+            {
+                python,
+                src,
+            },
             src_dir
         )
 
-    -------------------------------------------------------------------------
-    -- Rust / Cargo
-    -------------------------------------------------------------------------
+        return
+    end
 
-    elseif ft == 'rust' then
+    ---------------------------------------------------------------------------
+    -- Rust
+    ---------------------------------------------------------------------------
+
+    if ft == 'rust' then
         local cargo = find_executable('cargo')
+
         if not cargo then
             return
         end
 
-        -- Important: cargo must run at the Cargo.toml project root,
-        -- not necessarily in the directory containing the current .rs file.
-        local root = vim.fs.root(src, 'Cargo.toml')
+        local root = vim.fs.root(
+            src,
+            'Cargo.toml'
+        )
 
         if not root then
             vim.notify(
-                'Could not find Cargo.toml for current Rust file',
-                vim.log.levels.ERROR
+                'Cargo.toml not found',
+                vim.log.levels.ERROR,
+                { title = 'Runner' }
             )
+
             return
         end
 
+        -- Cargo performs both compilation and execution, so keeping it
+        -- directly inside the terminal gives you all compiler/program output.
         run_in_terminal(
-            run_command(
-                { cargo, 'run' },
+            {
                 cargo,
-                true
-            ),
+                'run',
+            },
             root
         )
 
-    -------------------------------------------------------------------------
-    -- CUDA
-    -------------------------------------------------------------------------
+        return
+    end
 
-    elseif ft == 'cuda' then
-        local exe = find_executable('nvcc')
-        if not exe then
+    ---------------------------------------------------------------------------
+    -- CUDA
+    ---------------------------------------------------------------------------
+
+    if ft == 'cuda' then
+        local nvcc = find_executable('nvcc')
+
+        if not nvcc then
             return
         end
 
-        run_in_terminal(
-            compile_then_run(
-                {
-                    exe,
-                    src_name,
-                    '-o',
-                    src_stem,
-                },
-                {
-                    './' .. src_stem,
-                },
-                exe
-            ),
+        local output = vim.fs.joinpath(
+            src_dir,
+            src_stem .. (is_windows and '.exe' or '')
+        )
+
+        local build_argv = join_argv({
+            { nvcc },
+            M.config.cuda_flags,
+            {
+                src,
+                '-o',
+                output,
+            },
+            M.config.cuda_link_flags,
+        })
+
+        build_and_run(
+            build_argv,
+            { output },
             src_dir
         )
 
-    -------------------------------------------------------------------------
-    -- Java
-    -------------------------------------------------------------------------
+        return
+    end
 
-    elseif ft == 'java' then
+    ---------------------------------------------------------------------------
+    -- Java
+    ---------------------------------------------------------------------------
+
+    if ft == 'java' then
         local javac = find_executable('javac')
         local java = find_executable('java')
 
@@ -304,132 +558,126 @@ function M.compile_and_run()
             return
         end
 
-        run_in_terminal(
-            compile_then_run(
-                {
-                    javac,
-                    src_name,
-                },
-                {
-                    java,
-                    src_stem,
-                },
-                javac
-            ),
-            src_dir
+        local class_name, classpath =
+            java_class_info(src_dir, src_stem)
+
+        run_system(
+            {
+                javac,
+                src,
+            },
+            src_dir,
+            function()
+                run_in_terminal(
+                    {
+                        java,
+                        '-cp',
+                        classpath,
+                        class_name,
+                    },
+                    classpath
+                )
+            end
         )
 
-    -------------------------------------------------------------------------
-    -- Shell
-    -------------------------------------------------------------------------
+        return
+    end
 
-    elseif ft == 'sh' then
+    ---------------------------------------------------------------------------
+    -- Shell
+    ---------------------------------------------------------------------------
+
+    if ft == 'sh' then
         local bash = find_executable('bash')
+
         if not bash then
             return
         end
 
         run_in_terminal(
-            run_command(
-                { bash, src_name },
-                bash,
-                true
-            ),
-            src_dir
-        )
-
-    -------------------------------------------------------------------------
-    -- Python
-    -------------------------------------------------------------------------
-
-    elseif ft == 'python' then
-        local python = find_executable({ 'python', 'python3' })
-        if not python then
-            return
-        end
-
-        run_in_terminal(
-            run_command(
-                { python, src_name },
-                python,
-                true
-            ),
-            src_dir
-        )
-
-    -------------------------------------------------------------------------
-    -- Graphviz
-    -------------------------------------------------------------------------
-
-    elseif ft == 'dot' then
-        local dot = find_executable('dot')
-        if not dot then
-            return
-        end
-
-        local output_name = src_stem .. '.svg'
-        local output_path = vim.fs.joinpath(src_dir, output_name)
-
-        local command = shell_command({
-            dot,
-            '-Tsvg',
-            src_name,
-            '-o',
-            output_name,
-        })
-
-        run_in_terminal(
             {
-                trace(command),
-                command,
+                bash,
+                src,
             },
-            src_dir,
-            function(code)
-                if code ~= 0 then
-                    return
-                end
-
-                -- Neovim 0.10+ API. Uses xdg-open/open/explorer etc.
-                local _, err = vim.ui.open(output_path)
-
-                if err then
-                    vim.notify(
-                        'Unable to open SVG: ' .. err,
-                        vim.log.levels.WARN
-                    )
-                end
-            end
+            src_dir
         )
 
-    -------------------------------------------------------------------------
-    -- R
-    -------------------------------------------------------------------------
+        return
+    end
 
-    elseif ft == 'r' then
+    ---------------------------------------------------------------------------
+    -- R
+    ---------------------------------------------------------------------------
+
+    if ft == 'r' then
         local rscript = find_executable('Rscript')
+
         if not rscript then
             return
         end
 
         run_in_terminal(
-            run_command(
-                { rscript, src_name },
+            {
                 rscript,
-                true
-            ),
+                src,
+            },
             src_dir
         )
 
-    -------------------------------------------------------------------------
-    -- Unsupported
-    -------------------------------------------------------------------------
-
-    else
-        vim.notify(
-            'Unsupported filetype for compile_and_run: ' .. ft,
-            vim.log.levels.WARN
-        )
+        return
     end
+
+    ---------------------------------------------------------------------------
+    -- Graphviz
+    ---------------------------------------------------------------------------
+
+    if ft == 'dot' then
+        local dot = find_executable('dot')
+
+        if not dot then
+            return
+        end
+
+        local output = vim.fs.joinpath(
+            src_dir,
+            src_stem .. '.svg'
+        )
+
+        run_system(
+            {
+                dot,
+                '-Tsvg',
+                src,
+                '-o',
+                output,
+            },
+            src_dir,
+            function()
+                local _, open_err =
+                    vim.ui.open(output)
+
+                if open_err then
+                    vim.notify(
+                        open_err,
+                        vim.log.levels.ERROR,
+                        { title = 'Runner' }
+                    )
+                end
+            end
+        )
+
+        return
+    end
+
+    ---------------------------------------------------------------------------
+    -- Unsupported
+    ---------------------------------------------------------------------------
+
+    vim.notify(
+        'Unsupported filetype: ' .. ft,
+        vim.log.levels.WARN,
+        { title = 'Runner' }
+    )
 end
 
 return M
