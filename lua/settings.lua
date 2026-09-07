@@ -35,6 +35,13 @@ then
     vim.g.clipboard = 'osc52'  -- use OSC52 when running remotely in a terminal.
 end
 
+-- On WSL, pin the clipboard provider. Otherwise Neovim autodetects it by
+-- probing several missing tools, and each failed executable() check scans
+-- the slow /mnt/c Windows PATH entries (~3.5s startup penalty).
+if vim.fn.has('wsl') == 1 and vim.fn.executable('win32yank.exe') == 1 then
+    vim.g.clipboard = 'win32yank'
+end
+
 -- Other settings
 vim.o.autochdir = true
 vim.o.ruler = false
