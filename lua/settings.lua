@@ -24,6 +24,10 @@ vim.o.hlsearch = true
 vim.o.showmatch = true
 vim.o.incsearch = false
 
+-- Relative line number
+vim.o.number = true
+vim.o.relativenumber = true
+
 -- Clipboard
 vim.opt.clipboard = 'unnamedplus'
 if not vim.g.neovide and (vim.env.SSH_TTY or vim.env.SSH_CONNECTION)
