@@ -5,13 +5,18 @@ local opts = { noremap = true, silent = true }
 vim.keymap.set('n', '<leader>v', '<C-w>v', opts)
 vim.keymap.set('n', '<leader>s', '<C-w>s', opts)
 
--- Navigation
+-- Page Navigation
 vim.keymap.set('n', '<leader>h', '<C-w>h', opts)
 vim.keymap.set('n', '<leader>j', '<C-w>j', opts)
 vim.keymap.set('n', '<leader>k', '<C-w>k', opts)
 vim.keymap.set('n', '<leader>l', '<C-w>l', opts)
-vim.keymap.set('n', '<leader>]', '<C-w>]', opts)
-vim.keymap.set('n', '<leader>[', '<C-w>[', opts)
+
+-- Symbol navigation
+vim.keymap.set('n', '<leader>]', vim.lsp.buf.definition, opts)
+vim.keymap.set('n', '<leader>[', '<C-o>', opts)
+vim.keymap.set('n', '<leader>d', vim.lsp.buf.declaration, opts)
+vim.keymap.set('n', '<leader>i', vim.lsp.buf.implementation, opts)
+vim.keymap.set('n', '<leader>p', vim.lsp.buf.type_definition, opts)
 
 -- Turn off highlight with SPACE-n
 vim.keymap.set('n', '<leader>n', ':nohl<CR>', opts)
